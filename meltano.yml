@@ -1,0 +1,77 @@
+version: 1
+send_anonymous_usage_stats: true
+project_id: tap-newsapi
+default_environment: test
+environments:
+- name: test
+plugins:
+  extractors:
+  - name: tap-newsapi
+    namespace: tap_newsapi
+    pip_url: -e .
+    capabilities:
+    - state
+    - catalog
+    - discover
+    - about
+    - stream-maps
+
+    # TODO: Declare settings and their types here:
+    settings_group_validation:
+    - [api_key, q]
+
+    # TODO: Declare default configuration values here:
+    settings:
+    - name: api_key
+      label: API Key
+      description: The api key to authenticate against the API service
+      sensitive: true
+
+    - name: q
+      label: Query
+      description: A list of keywords or phrases to search for in the article title
+        and body
+
+    - name: sort_by
+      label: Sort By
+      description: "The order to sort the articles in. Possible options: relevancy, popularity, publishedAt."
+
+    - name: from_date
+      kind: date_iso8601
+      label: From Date
+      description: A date and optional time for the oldest article allowed. This should
+        be in ISO 8601 format (e.g. 2025-02-23 or 2025-02-23T16:21:37)
+
+    - name: to_date
+      kind: date_iso8601
+      label: To Date
+      description: A date and optional time for the newest article allowed. This should
+        be in ISO 8601 format (e.g. 2025-02-23 or 2025-02-23T16:21:37)
+
+    - name: api_url
+      label: API URL
+      description: The url for the API service
+
+    - name: user_agent
+      label: User Agent
+      description: A custom user-Agent header to send with each request.
+
+
+    # TODO: Declare required settings here:
+    config:
+      api_url: https://newsapi.org/v2
+      user_agent: tap-newsapi
+      q: |
+        ("data cent*" OR datacenter OR "server farm" OR "cloud infrastructure" OR "colocation facility")  
+        AND  
+        (new OR proposed OR planned OR upcoming OR "under construction" OR "in development" OR expansion OR "breaking ground" OR groundbreaking)  
+        AND  
+        ("United States" OR USA OR "U.S." OR US OR Texas OR Virginia OR California OR Ohio OR Oregon)  
+        NOT  
+        (existing OR old OR closed OR Europe OR Asia OR Mexico OR Canada)
+      sort_by: relevancy
+
+  loaders:
+  - name: target-jsonl
+    variant: andyh1203
+    pip_url: target-jsonl
